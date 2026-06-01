@@ -219,10 +219,12 @@ const PATTERNS = {
 
 function extract(t) {
   t = t.replace(/\s+/g, ' ');
+  console.log('TEXTO EXTRAÍDO DO PDF:', t);
   const r = {};
   for (const k in PATTERNS) {
     const m = t.match(PATTERNS[k]);
     r[k] = m ? m[1].replace(/\s/g, '') : null;
+    console.log(`CAMPO [${k}]:`, r[k] || 'NÃO ENCONTRADO');
   }
   return r;
 }
