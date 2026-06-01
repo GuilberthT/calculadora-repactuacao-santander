@@ -206,11 +206,11 @@ const MONEY = '([\\d][\\d.\\s]*,\\d{2})';
 const INT   = '(\\d{1,3})';
 
 function rx(labels, val) {
-  return new RegExp('(?:' + labels.join('|') + ')[^\\d]{0,40}' + val, 'i');
+  return new RegExp('(?:' + labels.join('|') + ')[^\\d]{0,80}' + val, 'i');
 }
 
 const PATTERNS = {
-  financiado: rx(['valor\\s+total\\s+financiado','valor\\s+financiado','valor\\s+do\\s+cr[ée]dito','valor\\s+l[ií]quido\\s+liberado'], MONEY),
+  financiado: rx(['valor\\s+do\\s+empr[ée]stimo','valor\\s+total\\s+financiado','valor\\s+financiado','valor\\s+do\\s+cr[ée]dito','valor\\s+l[ií]quido\\s+liberado'], MONEY),
   pagoTotal:  rx(['valor\\s+total\\s+(?:a\\s+pagar|devido)','total\\s+a\\s+pagar','montante\\s+total','valor\\s+total\\s+do\\s+financiamento'], MONEY),
   seguro:     rx(['seguro\\s+prestamista','seguro\\s+prote[çc][ãa]o','pr[êe]mio.{0,10}seguro','valor\\s+do\\s+seguro','tarifa.{0,6}seguro'], MONEY),
   meses:      rx(['prazo\\s*(?:total)?\\s*\\(?(?:em\\s*)?meses\\)?','quantidade\\s+de\\s+parcelas','n[º°o]?\\s*de\\s+parcelas','prazo\\s+de\\s+pagamento'], INT),
@@ -219,12 +219,10 @@ const PATTERNS = {
 
 function extract(t) {
   t = t.replace(/\s+/g, ' ');
-  console.log('TEXTO EXTRAÍDO DO PDF:', t);
   const r = {};
   for (const k in PATTERNS) {
     const m = t.match(PATTERNS[k]);
     r[k] = m ? m[1].replace(/\s/g, '') : null;
-    console.log(`CAMPO [${k}]:`, r[k] || 'NÃO ENCONTRADO');
   }
   return r;
 }
