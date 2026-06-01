@@ -33,15 +33,8 @@ function wipe() {
 window.addEventListener('beforeunload', wipe);
 window.addEventListener('pagehide', wipe);
 
-/* ===== WORKER PDF.JS COM SRI VIA FETCH + BLOB ===== */
-fetch('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js', {
-  integrity: 'sha512-BbrZ76UNZq5BhH7LL7pn9A4TKQpQeNCHOo65/akfelcIBbcVvYWOFQKPXIrykE3qZxYjmDX573oa4Ywsc7rpTw==',
-  mode: 'cors',
-  referrerPolicy: 'no-referrer'
-})
-  .then(r => r.blob())
-  .then(b => { pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(b); })
-  .catch(e => { setStatus('⚠️ Falha ao carregar worker PDF: ' + e.message); });
+/* ===== WORKER PDF.JS ===== */
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 /* ===== CONSTANTES ===== */
 const FIELD_IDS = ['financiado', 'pagoTotal', 'seguro', 'meses', 'parcela'];
@@ -177,7 +170,7 @@ async function handleFile(file) {
     text = null;
   } catch(err) {
     hideBar();
-    setStatus('⚠️ Erro ao ler o PDF: ' + err.message);
+    setStatus('⚠️ Erro ao ler o PDF: ' + (err && err.message ? err.message : String(err)));
     console.error(err);
   } finally {
     buf = null;
