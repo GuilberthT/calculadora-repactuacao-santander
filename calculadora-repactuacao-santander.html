@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ============ SEGURANCA ============ -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               script-src 'self' https://cdnjs.cloudflare.com;
+               style-src 'self' https://fonts.googleapis.com;
+               font-src https://fonts.gstatic.com;
+               img-src 'self' data: blob:;
+               connect-src 'self' https://cdnjs.cloudflare.com blob: data:;
+               worker-src 'self' blob:;
+               form-action 'none';
+               base-uri 'self';
+               object-src 'none'">
+<meta name="referrer" content="no-referrer">
+
+<title>Calculadora de Repactuacao — Santander</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<!-- Hashes SHA-512 obtidos da API publica do cdnjs.com -->
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
+  integrity="sha512-q+4liFwdPC/bNdhUpZx6aXDx/h77yEQtn4I1slHydcbZK34nLaR3cAeYSJshoxIOq3mjEf7xJE8YWIUHMn+oCQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js"
+  integrity="sha512-2wYKf5SRmHOMuTUmSsOkTTwejJrRcL6oHK5zHw/8MPUwZgTEekmapU6UOkxs0KFy20eWWmCiL30fZoVrtRkcPQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="site-header">
+  <div class="wrap">
+    <header>
+      <div class="kicker">Santander · Regra de 3 · Repactuacao</div>
+      <h1>Leitor de <em>Contratos</em><br>+ Calculadora</h1>
+      <p class="sub">Anexe o PDF do contrato — digital ou escaneado. O app le os valores e preenche os campos. Confira, ajuste se preciso, e veja a parcela repactuada.</p>
+    </header>
+  </div>
+</div>
+
+<!-- ===== BODY ===== -->
+<div class="site-body">
+  <div class="wrap">
+
+    <div class="privacy">
+      <span class="lock">&#128274;</span>
+      <span class="txt"><b>Processamento 100% local.</b> O contrato e lido dentro do seu navegador e <b>nao e enviado para nenhum servidor</b>. Nada e salvo: ao fechar ou recarregar a pagina, todos os dados sao apagados da memoria.</span>
+    </div>
+
+    <div class="drop" id="drop">
+      <input type="file" id="file" accept="application/pdf">
+      <div class="ic">&#128196;</div>
+      <div class="big">Clique ou arraste o contrato em PDF aqui</div>
+      <div class="small">PDF digital ou escaneado (foto). Layout Santander.</div>
+      <div class="status" id="status"></div>
+      <div class="bar" id="bar"><i id="barfill"></i></div>
+      <div class="filename" id="filename"></div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Dados do contrato</h2>
+        <p class="hint">Campos com a etiqueta <b class="accent">lido do PDF</b> foram preenchidos automaticamente. Sempre confira.</p>
+
+        <label for="financiado">Valor financiado <span class="tag" id="t-financiado">lido do PDF</span></label>
+        <div class="field"><span class="pre">R$</span><input type="text" id="financiado" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false"></div>
+
+        <label for="pagoTotal">Total a pagar — contrato <span class="tag" id="t-pagoTotal">lido do PDF</span></label>
+        <div class="field"><span class="pre">R$</span><input type="text" id="pagoTotal" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false"></div>
+
+        <label for="seguro">Seguro (prestamista) <span class="tag" id="t-seguro">lido do PDF</span></label>
+        <div class="field"><span class="pre">R$</span><input type="text" id="seguro" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false"></div>
+
+        <label for="meses">Quantidade de meses <span class="tag" id="t-meses">lido do PDF</span></label>
+        <div class="field"><input class="nopre" type="text" id="meses" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false"></div>
+
+        <label for="parcela">Parcela mensal atual <span class="tag" id="t-parcela">lido do PDF</span></label>
+        <div class="field"><span class="pre">R$</span><input type="text" id="parcela" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false"></div>
+
+        <div class="btnrow"><button class="btn dark" id="reset">Limpar tudo</button></div>
+      </section>
+
+      <section class="card">
+        <h2>Resultado</h2>
+        <p class="hint">Valores calculados pela regra de 3.</p>
+        <div class="results">
+          <div class="row"><span class="k">Seguro proporcional (total pago)</span><span class="v" id="rSeguroProp">—</span></div>
+          <div class="row"><span class="k">Valor do seguro mensal</span><span class="v" id="rSeguroMes">—</span></div>
+        </div>
+        <div class="hero-row">
+          <span class="k">Nova parcela repactuada</span>
+          <span class="v" id="rParcela">—</span>
+          <span class="delta" id="rDelta"></span>
+        </div>
+        <div class="formula">
+          <p><b>Como e calculado</b></p>
+          <p>Seguro proporcional = <code>(Seguro &times; Total a pagar) &divide; Valor financiado</code></p>
+          <p>Seguro mensal = <code>Seguro proporcional &divide; Meses</code></p>
+          <p>Nova parcela = <code>Parcela atual &minus; Seguro mensal</code></p>
+        </div>
+        <div class="btnrow"><button class="btn print" id="print">Imprimir / Salvar PDF</button></div>
+      </section>
+    </div>
+
+    <footer>Estimativa baseada na proporcao informada. A leitura automatica pode falhar em PDFs escaneados de baixa qualidade — confira sempre com o contrato original.</footer>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
