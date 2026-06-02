@@ -612,6 +612,22 @@ footer {
 @media print {
   @page { size: A4 portrait; margin: 14mm 18mm; }
 
+  /* ----- forçar tema claro independente do modo ativo ----- */
+  :root, [data-theme="dark"] {
+    --bg:         #FFFFFF;
+    --surface:    #FFFFFF;
+    --surface-2:  #FAFAFA;
+    --border:     #E0E0E0;
+    --text:       #111111;
+    --text-mid:   #555555;
+    --text-muted: #999999;
+    --red:        #EC0000;
+    --red-deep:   #B80000;
+    --orange:     #FF5500;
+    --shadow:     none;
+    --shadow-lg:  none;
+  }
+
   /* ----- ocultar elementos de UI ----- */
   .theme-toggle,
   .site-header,
