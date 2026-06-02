@@ -108,6 +108,7 @@ F('reset').addEventListener('click', () => {
     F(id).classList.remove('filled', 'invalid');
     F('t-' + id).classList.remove('show');
   });
+  F('file').value = '';
   F('filename').textContent = '';
   setStatus('');
   calc();
