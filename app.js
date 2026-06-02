@@ -240,3 +240,20 @@ function applyFound(f) {
 
 /* ===== INIT ===== */
 calc();
+
+/* ===== THEME TOGGLE ===== */
+(function () {
+  const html   = document.documentElement;
+  const toggle = document.getElementById('themeToggle');
+  const prefer = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function setTheme(dark) {
+    html.setAttribute('data-theme', dark ? 'dark' : 'light');
+  }
+
+  setTheme(prefer.matches);
+
+  toggle.addEventListener('click', () => {
+    setTheme(html.getAttribute('data-theme') !== 'dark');
+  });
+})();
